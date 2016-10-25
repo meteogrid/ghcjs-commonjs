@@ -1,11 +1,6 @@
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE FlexibleInstances         #-}
-{-# LANGUAGE GADTs                     #-}
-{-# LANGUAGE ImpredicativeTypes        #-}
-{-# LANGUAGE LambdaCase                #-}
-{-# LANGUAGE OverlappingInstances      #-}
-{-# LANGUAGE ScopedTypeVariables       #-}
+{-# LANGUAGE ExistentialQuantification, FlexibleContexts, FlexibleInstances #-}
+{-# LANGUAGE GADTs, ImpredicativeTypes, LambdaCase, OverlappingInstances    #-}
+{-# LANGUAGE ScopedTypeVariables                                            #-}
 module GHCJS.CommonJS
   where
 
@@ -21,8 +16,8 @@ import           GHCJS.Types
 import qualified JavaScript.Array        as JSArray (fromList)
 import           JavaScript.EventEmitter
 
-import           GHCJS.CommonJS.Internal
-import           System.IO.Unsafe
+import GHCJS.CommonJS.Internal
+import System.IO.Unsafe
 
 instance ToJSVal () where
     toJSVal _ = return nullRef
@@ -214,7 +209,7 @@ call fn [a1, a2, a3] = js_call3 fn a1 a2 a3
 call fn args = js_apply fn (JSArray.fromList args)
 
 exportsMap :: MVar ExportMap
-exportsMap = unsafePerformIO $ newMVar Map.empty
+exportsMap = unsafePerformIO $ newMVar (Map.empty :: ExportMap)
 {-# NOINLINE exportsMap #-}
 
 getExport :: String -> IO (Maybe CommonJSExport)
