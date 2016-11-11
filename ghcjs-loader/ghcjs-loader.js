@@ -4,7 +4,7 @@ const chalk = require('chalk');
 const ghcjsRequire = require('ghcjs-require');
 const path = require('path');
 
-const GHCJS_COMMAND = 'stack ghc'; // '--compiler ghcjs-0.2.0.20160414_ghc-7.10.3';
+const GHCJS_COMMAND = 'ghcjs'; // '--compiler ghcjs-0.2.0.20160414_ghc-7.10.3';
 const CLOSURE_COMPILER_COMMAND = 'closure-compiler -O ADVANCED';
 
 function compileSync(loader, content) {
@@ -13,7 +13,7 @@ function compileSync(loader, content) {
   const filename = path.basename(input, '.hs');
   const output = path.join(dirname, filename + '.jsexe');
 
-  const cmd = `${GHCJS_COMMAND} -- -DGHCJS_BROWSER -o ${output} ${input}`;
+  const cmd = `${GHCJS_COMMAND} -DGHCJS_BROWSER --make ${input}`;
   console.log(
     chalk.blue.bold('[ghcjs] >>>'),
     cmd
@@ -30,14 +30,14 @@ function runClosureCompiler(loader, jsExePath) {
   const wrapperPath = path.join(jsExePath, 'index.js');
   const minPath = path.join(jsExePath, 'index.min.js');
 
-  const fcmdP = `gsed -i s/goog.provide.*// ${wrapperPath}`;
+  const fcmdP = `sed -i s/goog.provide.*// ${wrapperPath}`;
   console.log(chalk.blue.bold('[ghcjs] >>>'), fcmdP);
   childProcess.execSync(fcmdP, {
     stdio: 'inherit',
     cwd: loader.context,
   });
 
-  const fcmdR = `gsed -i s/goog.require.*// ${wrapperPath}`;
+  const fcmdR = `sed -i s/goog.require.*// ${wrapperPath}`;
   console.log(chalk.blue.bold('[ghcjs] >>>'), fcmdR);
   childProcess.execSync(fcmdR, {
     stdio: 'inherit',
@@ -64,11 +64,11 @@ exports = module.exports = function ghcjsLoader(content) {
   const relPath = path.relative(cwd, this.resourcePath);
 
   console.log(chalk.blue.bold('[ghcjs] >>>'), `Generating wrapper ${jsExePath}/index.js...`);
-  // const minPath = runClosureCompiler(this, jsExePath);
+  //const minPath = runClosureCompiler(this, jsExePath);
   const out = ghcjsRequire.generateWrapper(
     jsExePath
-    // ,
-    // fs.readFileSync(minPath).toString()
+    //,
+    //fs.readFileSync(minPath).toString()
   );
 
   console.log(chalk.blue.bold('[ghcjs] >>>'), 'Finished compiling ' + relPath);
